@@ -47,27 +47,3 @@ This extension stores your preferences and saved content locally in your browser
 ## 👏 Credit
 
 Special credit to Tekulapalli Abhiram for the design and development of this extension.
-
-## 📤 Uploading to GitHub
-
-If you want to upload this project to GitHub:
-
-1. Create a new repository on GitHub.
-2. Initialize Git in the project folder.
-3. Add the files, commit them, and push to your repository.
-4. Share your project link publicly.
-
-Example:
-
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/your-username/your-repo-name.git
-git push -u origin main
-```
-
-## 💡 Note
-
-This README is designed to be clean, professional, and ready for GitHub or other project hosting platforms.
