@@ -105,8 +105,8 @@ const render = async () => {
     DOM.linksContainer.innerHTML = '';
 
     // Default link categories
-    const { defaultLinks } = await import('../core/config.js');
-    Object.entries(defaultLinks).forEach(([cat, links], catIndex) => {
+    const { CONFIG } = await import('../core/config.js');
+    Object.entries(CONFIG.defaultLinks).forEach(([cat, links], catIndex) => {
         const grp = document.createElement('div');
         grp.className = 'link-category';
 
