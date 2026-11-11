@@ -1167,6 +1167,37 @@ body.focus-mode .zen-back-btn {
     background: rgba(255, 71, 87, 0.1);
 }
 
+/* Drag and Drop for Tasks */
+.list-item.dragging {
+    opacity: 0.5;
+    background: var(--glass-highlight);
+    border-color: var(--text-main);
+    cursor: grabbing;
+}
+
+.list-item.dragging .drag-handle {
+    opacity: 1;
+    color: var(--text-main);
+    cursor: grabbing;
+}
+
+.list-item.drag-over {
+    border-color: var(--text-main);
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.list-item:hover .drag-handle {
+    opacity: 1;
+}
+
+.drag-handle:hover {
+    color: var(--text-main) !important;
+    background: var(--glass-highlight);
+    border-radius: 6px;
+}
+
 /* Notes */
 .notes-wrap {
     flex: 1;

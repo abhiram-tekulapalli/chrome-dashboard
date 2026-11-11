@@ -1,6 +1,6 @@
 /**
  * AURA ULTRA PREMIUM - Tasks Feature
- * Todo list with add, toggle, delete
+ * Todo list with add, toggle, delete, and drag-to-reorder
  */
 
 import { DOM } from '../core/dom.js';
@@ -28,6 +28,9 @@ let tasks = [];
 
 const save = () => Storage.setJSON(CONFIG.keys.tasks, tasks);
 
+let draggedItem = null;
+let dragSourceIndex = -1;
+
 const render = () => {
     DOM.listTasks.innerHTML = '';
     const frag = document.createDocumentFragment();
@@ -36,6 +39,8 @@ const render = () => {
         const li = document.createElement('li');
         li.className = `list-item ${task.done ? 'checked' : ''}`;
         li.dataset.id = task.id;
+        li.draggable = true;
+        li.dataset.index = i;
 
         const check = document.createElement('div');
         check.className = 'check-box';
@@ -52,13 +57,105 @@ const render = () => {
         del.setAttribute('aria-label', `Delete task: ${task.text}`);
         del.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
 
+        // Drag handle
+        const dragHandle = document.createElement('div');
+        dragHandle.className = 'drag-handle';
+        dragHandle.setAttribute('aria-label', 'Drag to reorder');
+        dragHandle.style.cssText = `
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: grab;
+            flex-shrink: 0;
+            opacity: 0;
+            transition: opacity 0.2s, color 0.2s;
+        `;
+        dragHandle.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+        li.insertBefore(dragHandle, li.firstChild);
+
         li.appendChild(check);
         li.appendChild(text);
         li.appendChild(del);
         frag.appendChild(animateIn(li, i));
+
+        // Drag events
+        li.addEventListener('dragstart', handleDragStart);
+        li.addEventListener('dragend', handleDragEnd);
+        li.addEventListener('dragover', handleDragOver);
+        li.addEventListener('dragenter', handleDragEnter);
+        li.addEventListener('dragleave', handleDragLeave);
+        li.addEventListener('drop', handleDrop);
+
+        // Show drag handle on hover
+        li.addEventListener('mouseenter', () => { dragHandle.style.opacity = '1'; });
+        li.addEventListener('mouseleave', () => { if (!li.classList.contains('dragging')) dragHandle.style.opacity = '0'; });
     });
 
     DOM.listTasks.appendChild(frag);
+};
+
+const handleDragStart = (e) => {
+    if (e.target.closest('.btn-del') || e.target.closest('.check-box') || e.target.closest('input')) {
+        e.preventDefault();
+        return;
+    }
+    draggedItem = e.currentTarget;
+    dragSourceIndex = parseInt(draggedItem.dataset.index, 10);
+    draggedItem.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', draggedItem.dataset.id);
+
+    // Hide drag handle on other items
+    DOM.listTasks.querySelectorAll('.list-item:not(.dragging) .drag-handle').forEach(h => h.style.opacity = '0');
+};
+
+const handleDragEnd = (e) => {
+    if (!draggedItem) return;
+    draggedItem.classList.remove('dragging');
+    DOM.listTasks.querySelectorAll('.list-item').forEach(li => li.classList.remove('drag-over'));
+    draggedItem = null;
+    dragSourceIndex = -1;
+};
+
+const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+};
+
+const handleDragEnter = (e) => {
+    const target = e.currentTarget;
+    if (target === draggedItem) return;
+    target.classList.add('drag-over');
+};
+
+const handleDragLeave = (e) => {
+    const target = e.currentTarget;
+    // Only remove if actually leaving the element (not entering a child)
+    if (!target.contains(e.relatedTarget)) {
+        target.classList.remove('drag-over');
+    }
+};
+
+const handleDrop = (e) => {
+    e.preventDefault();
+    const target = e.currentTarget;
+    target.classList.remove('drag-over');
+
+    if (!draggedItem || target === draggedItem) return;
+
+    const targetIndex = parseInt(target.dataset.index, 10);
+    if (dragSourceIndex === targetIndex) return;
+
+    // Reorder tasks array
+    const [movedTask] = tasks.splice(dragSourceIndex, 1);
+    tasks.splice(targetIndex, 0, movedTask);
+
+    void save();
+    render();
+    showToast('Task reordered.', 'success');
 };
 
 export const initTasks = async () => {
@@ -84,9 +181,11 @@ export const initTasks = async () => {
             return;
         }
 
-        tasks[index].done = !tasks[index].done;
-        void save();
-        render();
+        if (e.target.closest('.check-box') || e.target.closest('.item-text')) {
+            tasks[index].done = !tasks[index].done;
+            void save();
+            render();
+        }
     });
 
     DOM.inputTask.addEventListener('keydown', (e) => {

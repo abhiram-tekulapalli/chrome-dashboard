@@ -18,7 +18,8 @@ export const CONFIG = {
         notes: 'aura_notes',
         pomoState: 'aura_pomo_state',
         searchEngine: 'aura_search_engine',
-        legacyBgIndex: 'aura_bg_index'
+        legacyBgIndex: 'aura_bg_index',
+        settings: 'aura_settings'
     },
     defaultLinks: {
         'Development': [

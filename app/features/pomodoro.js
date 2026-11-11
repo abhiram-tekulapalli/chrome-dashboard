@@ -7,17 +7,22 @@ import { DOM } from '../core/dom.js';
 import { Storage } from '../core/storage.js';
 import { CONFIG } from '../core/config.js';
 import { showToast } from '../ui/toast.js';
+import { getSetting } from '../core/settings.js';
 
 export const initPomodoro = async () => {
     let timerInterval;
     let mode = 'focus';
     let isRunning = false;
     let endAt = null;
-    let timeLeft = CONFIG.focusDurationSec;
+
+    const getFocusDuration = () => (getSetting('pomodoroFocusDuration') || 25) * 60;
+    const getBreakDuration = () => (getSetting('pomodoroBreakDuration') || 5) * 60;
 
     const durationForMode = (nextMode) => (
-        nextMode === 'break' ? CONFIG.breakDurationSec : CONFIG.focusDurationSec
+        nextMode === 'break' ? getBreakDuration() : getFocusDuration()
     );
+
+    let timeLeft = durationForMode(mode);
 
     const notifyCompletion = async (message) => {
         showToast(message, 'success');

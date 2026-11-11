@@ -12,6 +12,7 @@ import { addCustomLink } from '../features/links.js';
 export const initKeyboardShortcuts = () => {
     document.addEventListener('keydown', (e) => {
         const key = e.key.toLowerCase();
+        const isShift = e.shiftKey;
 
         if (key === 'escape') {
             if (!DOM.linkModal.hidden) {
@@ -39,6 +40,19 @@ export const initKeyboardShortcuts = () => {
             e.preventDefault();
             DOM.search.focus();
             DOM.search.select();
+            return;
+        }
+
+        // Shift+/ = ? for settings
+        if (key === '?' || (key === '/' && isShift)) {
+            e.preventDefault();
+            if (window.__auraOpenSettings) void window.__auraOpenSettings();
+            return;
+        }
+
+        if (key === 's') {
+            e.preventDefault();
+            if (window.__auraOpenSettings) void window.__auraOpenSettings();
             return;
         }
 

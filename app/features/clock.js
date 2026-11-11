@@ -1,16 +1,23 @@
 /**
  * AURA ULTRA PREMIUM - Clock Feature
- * Live clock with greeting
+ * Live clock with greeting and configurable format
  */
 
 import { DOM } from '../core/dom.js';
+import { getSetting } from '../core/settings.js';
 
 export const initClock = () => {
     const tick = () => {
         const now = new Date();
         const h = now.getHours();
         const m = now.getMinutes().toString().padStart(2, '0');
-        DOM.clock.textContent = `${h % 12 || 12}:${m}`;
+        const clockFormat = getSetting('clockFormat') || '12h';
+
+        if (clockFormat === '24h') {
+            DOM.clock.textContent = `${h.toString().padStart(2, '0')}:${m}`;
+        } else {
+            DOM.clock.textContent = `${h % 12 || 12}:${m}`;
+        }
 
         let greeting = '';
         if (h >= 5 && h < 12) greeting = 'Good morning';
