@@ -13,7 +13,9 @@
         "alarms"
     ],
     "host_permissions": [
-        "https://icons.duckduckgo.com/*"
+        "https://icons.duckduckgo.com/*",
+        "https://speed.cloudflare.com/*",
+        "https://www.google.com/*"
     ],
     "background": {
         "service_worker": "background.js",

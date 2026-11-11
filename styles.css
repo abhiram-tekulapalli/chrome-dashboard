@@ -1295,3 +1295,111 @@ body.focus-mode .zen-back-btn {
         scroll-behavior: auto !important;
     }
 }
+/* --- Speed Test Module --- */
+.speedtest-module {
+    padding: 1rem;
+    text-align: center;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.speedtest-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.speedtest-header svg {
+    color: var(--text-muted);
+}
+
+.speedtest-header span {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+.speedtest-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 100%;
+}
+
+.speedtest-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.speedtest-item:last-child {
+    border-bottom: none;
+}
+
+.speedtest-item span:first-child {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.speedtest-item span:last-child {
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-main);
+}
+
+.speedtest-btn {
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--glass-highlight);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    max-width: 200px;
+}
+
+.speedtest-btn:hover:not(:disabled) {
+    background: var(--text-main);
+    color: var(--bg-overlay);
+}
+
+.speedtest-btn:disabled {
+    background: var(--glass-border);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+.speedtest-status {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    height: 1rem;
+    min-height: 1rem;
+}
+
+[data-theme="light"] .speedtest-btn {
+    background: var(--glass-highlight);
+    border-color: var(--glass-border);
+    color: var(--text-main);
+}
+
+[data-theme="light"] .speedtest-btn:hover:not(:disabled) {
+    background: var(--text-main);
+    color: var(--bg-overlay);
+}
