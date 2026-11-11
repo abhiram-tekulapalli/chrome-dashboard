@@ -146,7 +146,7 @@ export const initSearch = async () => {
     // Hide on blur (with delay to allow click)
     DOM.search.addEventListener('blur', () => setTimeout(hideHistory, 150));
 
-    DOM.search.addEventListener('keydown', (e) => {
+    DOM.search.addEventListener('keydown', async (e) => {
         const query = DOM.search.value.trim();
         if (e.key === 'Enter' && query) {
             await addToHistory(query);
