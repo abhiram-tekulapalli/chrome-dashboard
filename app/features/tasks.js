@@ -1,6 +1,6 @@
 /**
  * AURA ULTRA PREMIUM - Tasks Feature
- * Todo list with add, toggle, delete, and drag-to-reorder
+ * Todo list with add, toggle, delete, drag-to-reorder, and due dates
  */
 
 import { DOM } from '../core/dom.js';
@@ -19,7 +19,8 @@ const sanitizeTasks = (raw) => {
             return {
                 id: typeof item.id === 'string' ? item.id : makeId(),
                 text,
-                done: Boolean(item.done)
+                done: Boolean(item.done),
+                dueDate: typeof item.dueDate === 'string' && item.dueDate ? item.dueDate : null
             };
         })
         .filter(Boolean);
@@ -32,16 +33,66 @@ const save = () => Storage.setJSON(CONFIG.keys.tasks, tasks);
 let draggedItem = null;
 let dragSourceIndex = -1;
 
+const formatDueDate = (dateStr) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    if (d.getTime() === today.getTime()) return 'Today';
+    if (d.getTime() === tomorrow.getTime()) return 'Tomorrow';
+
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+};
+
+const isOverdue = (dateStr) => {
+    if (!dateStr) return false;
+    const d = new Date(dateStr + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return d < today;
+};
+
+const createDueDateInput = (existingDate = '') => {
+    const input = document.createElement('input');
+    input.type = 'date';
+    input.value = existingDate;
+    input.style.cssText = `
+        background: rgba(255,255,255,0.06);
+        color: var(--text-main);
+        border: 1px solid var(--glass-border);
+        border-radius: 999px;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        min-width: 140px;
+    `;
+    return input;
+};
+
 const render = () => {
     DOM.listTasks.innerHTML = '';
     const frag = document.createDocumentFragment();
 
-    tasks.forEach((task, i) => {
+    // Sort: incomplete first, then by due date (soonest first), then by original order
+    const sortedTasks = [...tasks].map((task, i) => ({ ...task, _origIndex: i }))
+        .sort((a, b) => {
+            if (a.done !== b.done) return a.done ? 1 : -1;
+            if (!a.dueDate && !b.dueDate) return a._origIndex - b._origIndex;
+            if (!a.dueDate) return 1;
+            if (!b.dueDate) return -1;
+            return new Date(a.dueDate) - new Date(b.dueDate);
+        });
+
+    sortedTasks.forEach((task, i) => {
         const li = document.createElement('li');
-        li.className = `list-item ${task.done ? 'checked' : ''}`;
+        li.className = `list-item ${task.done ? 'checked' : ''} ${isOverdue(task.dueDate) && !task.done ? 'overdue' : ''}`;
         li.dataset.id = task.id;
         li.draggable = true;
-        li.dataset.index = i;
+        li.dataset.index = tasks.findIndex(t => t.id === task.id);
 
         const check = document.createElement('div');
         check.className = 'check-box';
@@ -50,6 +101,51 @@ const render = () => {
         const text = document.createElement('span');
         text.className = 'item-text';
         text.textContent = task.text;
+
+        const dueWrapper = document.createElement('div');
+        dueWrapper.className = 'due-date-wrapper';
+        dueWrapper.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: auto;
+        `;
+
+        if (task.dueDate) {
+            const dueLabel = document.createElement('span');
+            dueLabel.className = `due-date-label ${isOverdue(task.dueDate) && !task.done ? 'overdue' : ''}`;
+            dueLabel.textContent = formatDueDate(task.dueDate);
+            dueLabel.style.cssText = `
+                font-size: 0.7rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                padding: 0.2rem 0.5rem;
+                border-radius: 999px;
+                background: ${isOverdue(task.dueDate) && !task.done
+                    ? 'rgba(255, 107, 129, 0.15)'
+                    : 'var(--glass-highlight)'};
+                color: ${isOverdue(task.dueDate) && !task.done
+                    ? '#ff6b81'
+                    : 'var(--text-muted)'};
+                border: 1px solid ${isOverdue(task.dueDate) && !task.done
+                    ? 'rgba(255, 107, 129, 0.3)'
+                    : 'var(--glass-border)'};
+                white-space: nowrap;
+            `;
+            dueWrapper.appendChild(dueLabel);
+        }
+
+        const dueInput = createDueDateInput(task.dueDate || '');
+        dueInput.addEventListener('change', async () => {
+            const idx = tasks.findIndex(t => t.id === task.id);
+            if (idx !== -1) {
+                tasks[idx].dueDate = dueInput.value || null;
+                void save();
+                render();
+            }
+        });
+        dueWrapper.appendChild(dueInput);
 
         const del = document.createElement('button');
         del.className = 'btn-del';
@@ -79,6 +175,7 @@ const render = () => {
 
         li.appendChild(check);
         li.appendChild(text);
+        li.appendChild(dueWrapper);
         li.appendChild(del);
         frag.appendChild(animateIn(li, i));
 
@@ -99,7 +196,7 @@ const render = () => {
 };
 
 const handleDragStart = (e) => {
-    if (e.target.closest('.btn-del') || e.target.closest('.check-box') || e.target.closest('input')) {
+    if (e.target.closest('.btn-del') || e.target.closest('.check-box') || e.target.closest('input') || e.target.closest('.due-date-wrapper')) {
         e.preventDefault();
         return;
     }
@@ -150,7 +247,7 @@ const handleDrop = (e) => {
     const targetIndex = parseInt(target.dataset.index, 10);
     if (dragSourceIndex === targetIndex) return;
 
-    // Reorder tasks array
+    // Reorder tasks array (using original indices)
     const [movedTask] = tasks.splice(dragSourceIndex, 1);
     tasks.splice(targetIndex, 0, movedTask);
 
@@ -192,7 +289,7 @@ export const initTasks = async () => {
     DOM.inputTask.addEventListener('keydown', (e) => {
         const value = truncate(DOM.inputTask.value || '', CONFIG.maxTaskLength);
         if (e.key === 'Enter' && value) {
-            tasks.push({ id: makeId(), text: value, done: false });
+            tasks.push({ id: makeId(), text: value, done: false, dueDate: null });
             DOM.inputTask.value = '';
             void save();
             render();

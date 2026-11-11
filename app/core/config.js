@@ -14,10 +14,12 @@ export const CONFIG = {
         theme: 'aura_theme',
         customBg: 'aura_custom_bg',
         customLinks: 'aura_custom_links',
+        linkCategories: 'aura_link_categories',
         tasks: 'aura_tasks',
         notes: 'aura_notes',
         pomoState: 'aura_pomo_state',
         searchEngine: 'aura_search_engine',
+        searchHistory: 'aura_search_history',
         legacyBgIndex: 'aura_bg_index',
         settings: 'aura_settings'
     },

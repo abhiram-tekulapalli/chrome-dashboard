@@ -1,6 +1,6 @@
 /**
  * AURA ULTRA PREMIUM - Links Feature
- * App shortcuts with custom link management
+ * App shortcuts with custom link management and categories
  */
 
 import { DOM } from '../core/dom.js';
@@ -9,6 +9,8 @@ import { CONFIG } from '../core/config.js';
 import { makeId, truncate, normalizeUrl, animateIn } from '../core/utils.js';
 import { showToast, closeDataPanel } from '../ui/toast.js';
 import { openLinkModal } from '../ui/modal.js';
+
+const DEFAULT_CATEGORY = 'Uncategorized';
 
 // Favicon fallback cache
 const faviconCache = new Map();
@@ -42,7 +44,8 @@ const sanitizeCustomLinks = (raw) => {
             return {
                 id: typeof item.id === 'string' ? item.id : makeId(),
                 name,
-                url
+                url,
+                category: typeof item.category === 'string' && item.category.trim() ? item.category.trim() : DEFAULT_CATEGORY
             };
         })
         .filter(Boolean);
@@ -101,11 +104,10 @@ const createNode = (link, isCustom = false) => {
     return a;
 };
 
-const render = async () => {
+const render = () => {
     DOM.linksContainer.innerHTML = '';
 
     // Default link categories
-    const { CONFIG } = await import('../core/config.js');
     Object.entries(CONFIG.defaultLinks).forEach(([cat, links], catIndex) => {
         const grp = document.createElement('div');
         grp.className = 'link-category';
@@ -125,7 +127,7 @@ const render = async () => {
         DOM.linksContainer.appendChild(grp);
     });
 
-    // Custom links section
+    // Custom links - grouped by category
     const customGrp = document.createElement('div');
     customGrp.className = 'link-category';
 
@@ -135,8 +137,45 @@ const render = async () => {
     const customGrid = document.createElement('div');
     customGrid.className = 'app-grid';
 
-    customLinks.forEach((link, i) => {
-        customGrid.appendChild(animateIn(createNode(link, true), i));
+    // Group custom links by category
+    const byCategory = {};
+    customLinks.forEach(link => {
+        const cat = link.category || DEFAULT_CATEGORY;
+        if (!byCategory[cat]) byCategory[cat] = [];
+        byCategory[cat].push(link);
+    });
+
+    // Sort categories: Uncategorized first, then alphabetically
+    const sortedCategories = Object.keys(byCategory).sort((a, b) => {
+        if (a === DEFAULT_CATEGORY) return -1;
+        if (b === DEFAULT_CATEGORY) return 1;
+        return a.localeCompare(b);
+    });
+
+    let globalIndex = 0;
+    sortedCategories.forEach(cat => {
+        const catTitle = document.createElement('h4');
+        catTitle.textContent = cat;
+        catTitle.style.cssText = `
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin: 1rem 0 0.5rem;
+            font-weight: 700;
+            border-top: 1px solid var(--glass-border);
+            padding-top: 0.75rem;
+        `;
+        if (globalIndex === 0) {
+            catTitle.style.marginTop = '0';
+            catTitle.style.borderTop = 'none';
+            catTitle.style.paddingTop = '0';
+        }
+        customGrid.appendChild(catTitle);
+
+        byCategory[cat].forEach(link => {
+            customGrid.appendChild(animateIn(createNode(link, true), globalIndex++));
+        });
     });
 
     // Add button
@@ -158,7 +197,7 @@ const render = async () => {
         void addCustomLink();
     });
 
-    customGrid.appendChild(animateIn(addWrap, customLinks.length + 1));
+    customGrid.appendChild(animateIn(addWrap, globalIndex + 1));
     customGrp.appendChild(customTitle);
     customGrp.appendChild(customGrid);
     DOM.linksContainer.appendChild(customGrp);
@@ -177,7 +216,7 @@ const addCustomLink = async () => {
 
     customLinks.push(result);
     await saveCustom();
-    await render();
+    render();
     showToast('Shortcut added.', 'success');
 };
 
@@ -185,7 +224,7 @@ export const initLinks = async () => {
     customLinks = sanitizeCustomLinks(await Storage.getJSON(CONFIG.keys.customLinks, []));
     void Storage.setJSON(CONFIG.keys.customLinks, customLinks);
 
-    await render();
+    render();
 };
 
 // Exported for keyboard shortcuts
