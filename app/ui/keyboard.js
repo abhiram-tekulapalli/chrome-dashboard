@@ -15,6 +15,10 @@ export const initKeyboardShortcuts = () => {
         const isShift = e.shiftKey;
 
         if (key === 'escape') {
+            // Check cheatsheet first
+            if (window.__auraCheatsheet && window.__auraCheatsheet.close) {
+                // Let the cheatsheet handle its own escape
+            }
             if (!DOM.linkModal.hidden) {
                 e.preventDefault();
                 import('./modal.js').then(m => m.closeLinkModal(null));
@@ -43,16 +47,16 @@ export const initKeyboardShortcuts = () => {
             return;
         }
 
-        // Shift+/ = ? for settings
+        // Shift+/ = ? for cheatsheet
         if (key === '?' || (key === '/' && isShift)) {
             e.preventDefault();
-            if (window.__auraOpenSettings) void window.__auraOpenSettings();
+            if (window.__auraCheatsheet) window.__auraCheatsheet.toggle();
             return;
         }
 
         if (key === 's') {
             e.preventDefault();
-            if (window.__auraOpenSettings) void window.__auraOpenSettings();
+            if (window.__auraCheatsheet) window.__auraCheatsheet.toggle();
             return;
         }
 

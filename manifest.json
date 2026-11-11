@@ -9,11 +9,19 @@
     },
     "permissions": [
         "storage",
-        "notifications"
+        "notifications",
+        "alarms"
     ],
     "host_permissions": [
         "https://icons.duckduckgo.com/*"
     ],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "action": {
+        "default_title": "Aura Ultra Premium"
+    },
     "content_security_policy": {
         "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'"
     }

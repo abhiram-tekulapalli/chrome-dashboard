@@ -12,10 +12,13 @@ import { initLinks } from './features/links.js';
 import { initTasks } from './features/tasks.js';
 import { initNotes } from './features/notes.js';
 import { initPomodoro } from './features/pomodoro.js';
+import { initSpeedTest } from './features/speedtest.js';
 import { initDataTools } from './features/data-tools.js';
 import { initKeyboardShortcuts } from './ui/keyboard.js';
 import { initSettingsButton, openSettingsModal } from './ui/settings.js';
+import { initCheatsheet } from './ui/cheatsheet.js';
 import { loadSettings, applySettings, initReducedMotion } from './core/settings.js';
+import { setThemeState, getThemeState } from './features/theme.js';
 
 // Initialize all features
 const start = async () => {
@@ -23,6 +26,13 @@ const start = async () => {
     await loadSettings();
     applySettings();
     initReducedMotion();
+
+    // Sync theme with settings
+    const settings = await import('./core/settings.js');
+    const savedTheme = settings.getSetting('theme');
+    if (savedTheme) {
+        setThemeState(savedTheme === 'dark');
+    }
 
     // UI foundations first
     initLinkModal();
@@ -39,8 +49,10 @@ const start = async () => {
 
     // Tools & shortcuts
     initDataTools();
+    initSpeedTest();
     initSettingsButton();
     initKeyboardShortcuts();
+    initCheatsheet();
 
     console.log('Aura Ultra Premium initialized');
 };
