@@ -6,5 +6,15 @@
     "description": "A polished, keyboard-friendly, high-performance glassmorphism new tab experience.",
     "chrome_url_overrides": {
         "newtab": "index.html"
+    },
+    "permissions": [
+        "storage",
+        "notifications"
+    ],
+    "host_permissions": [
+        "https://icons.duckduckgo.com/*"
+    ],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'"
     }
 }

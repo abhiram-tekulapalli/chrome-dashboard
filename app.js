@@ -575,10 +575,15 @@ const App = (() => {
             }
         };
 
+        // Cache favicon fallback SVGs to avoid recreating on every render
+        const faviconCache = new Map();
         const getFallback = (name) => {
             const letter = (name.trim().charAt(0) || '?').toUpperCase().replace(/[^A-Z0-9]/, '?');
-            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" fill="#ffffff15" rx="32"/><text x="50%" y="54%" fill="#ffffff" font-family="sans-serif" font-size="64" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${letter}</text></svg>`;
-            return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+            if (!faviconCache.has(letter)) {
+                const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" fill="#ffffff15" rx="32"/><text x="50%" y="54%" fill="#ffffff" font-family="sans-serif" font-size="64" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${letter}</text></svg>`;
+                faviconCache.set(letter, `data:image/svg+xml,${encodeURIComponent(svg)}`);
+            }
+            return faviconCache.get(letter);
         };
 
         const sanitizeCustomLinks = (raw) => {
@@ -992,7 +997,15 @@ const App = (() => {
             }
         }
 
-        DOM.btnPomoStart.addEventListener('click', () => {
+        DOM.btnPomoStart.addEventListener('click', async () => {
+            // Request notification permission on first interaction
+            if ('Notification' in window && Notification.permission === 'default') {
+                try {
+                    await Notification.requestPermission();
+                } catch {
+                    // Ignore permission errors
+                }
+            }
             if (isRunning) pauseTimer();
             else startTimer();
         });
