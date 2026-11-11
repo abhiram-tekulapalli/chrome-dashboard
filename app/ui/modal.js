@@ -4,7 +4,8 @@
  */
 
 import { DOM } from '../core/dom.js';
-import { CONFIG, truncate, normalizeUrl } from '../core/utils.js';
+import { CONFIG } from '../core/config.js';
+import { truncate, normalizeUrl } from '../core/utils.js';
 import { showToast } from './toast.js';
 
 let linkModalResolver = null;

@@ -5,7 +5,8 @@
 
 import { DOM } from '../core/dom.js';
 import { Storage } from '../core/storage.js';
-import { CONFIG, makeId, truncate, animateIn } from '../core/utils.js';
+import { CONFIG } from '../core/config.js';
+import { makeId, truncate, animateIn } from '../core/utils.js';
 import { showToast } from '../ui/toast.js';
 
 const sanitizeTasks = (raw) => {

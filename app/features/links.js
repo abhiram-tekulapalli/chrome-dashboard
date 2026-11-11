@@ -5,7 +5,8 @@
 
 import { DOM } from '../core/dom.js';
 import { Storage } from '../core/storage.js';
-import { CONFIG, makeId, truncate, normalizeUrl, animateIn } from '../core/utils.js';
+import { CONFIG } from '../core/config.js';
+import { makeId, truncate, normalizeUrl, animateIn } from '../core/utils.js';
 import { showToast, closeDataPanel } from '../ui/toast.js';
 import { openLinkModal } from '../ui/modal.js';
 
