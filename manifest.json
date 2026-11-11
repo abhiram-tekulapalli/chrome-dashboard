@@ -10,7 +10,8 @@
     "permissions": [
         "storage",
         "notifications",
-        "alarms"
+        "alarms",
+        "windows"
     ],
     "host_permissions": [
         "https://icons.duckduckgo.com/*",

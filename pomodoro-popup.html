@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Focus Timer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="pomo-popup">
+        <div class="pomo-popup-header">
+            <div class="pomo-popup-drag" title="Drag to move"></div>
+            <div class="pomo-popup-title">Focus Timer</div>
+            <button id="pomo-popup-close" class="pomo-popup-close" type="button" aria-label="Close popup">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="pomo-popup-body">
+            <div class="pomo-popup-mode" id="pomo-popup-mode-badge">Focus</div>
+            <div class="pomo-popup-time" id="pomo-popup-time">25:00</div>
+            <div class="pomo-popup-controls">
+                <button id="pomo-popup-start" class="pomo-popup-btn primary" type="button">Start</button>
+                <button id="pomo-popup-reset" class="pomo-popup-btn" type="button">Reset</button>
+                <button id="pomo-popup-mode" class="pomo-popup-btn" type="button">Break</button>
+            </div>
+            <div class="pomo-popup-hint">Space: Start/Pause  •  R: Reset  •  M: Switch Mode</div>
+        </div>
+    </div>
+
+    <script type="module" src="app/features/pomodoro-popup.js"></script>
+</body>
+</html>
